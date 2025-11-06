@@ -13,58 +13,46 @@ pub struct Parser {
 }
 
 impl Parser {
+    fn parse_title(source: &Vec<&str>) -> String {
+        let split_source = source.get(0).unwrap_or(&"").chars();
+        let split_count = split_source.clone().count();
+
+        Self::pop_return(&mut split_source.skip(1).take(split_count).collect())
+    }
+
+    fn parse_port(source: &Vec<&str>) -> u16 {
+        let mut port = source.get(3).unwrap_or(&"").to_string();
+        Self::pop_return(&mut port).parse::<u16>().unwrap_or(0)
+    }
+
+    fn parse_code(source: &Vec<&str>) -> char {
+        source.get(0).unwrap_or(&"").chars().next().unwrap_or('e')
+    }
+
+    fn parse_path(source: &Vec<&str>) -> String {
+        source.get(1).unwrap_or(&"").to_string()
+    }
+
+    fn parse_host(source: &Vec<&str>) -> String {
+        source.get(2).unwrap_or(&"").to_string()
+    }
+
     pub fn new(tcp_string: &str)-> Self {
-        let mut collect_string = tcp_string.split("\n");
-        let mut page: Vec<Item> = vec![];
+        let collect_string = tcp_string.split("\n");
+        Parser {
+            page: collect_string.map(|c| {
+                let split_string = c.split("\t");
+                let split_collect: Vec<&str> = split_string.collect();
 
-        for c in collect_string {
-            let split_string = c.split("\t");
-            let split_collect: Vec<&str> = split_string.collect();
-
-            let get_title = split_collect
-                .get(0)
-                .unwrap_or(&"")
-                .chars();
-
-            let current_attr: Item = Item {
-                code: split_collect
-                    .get(0)
-                    .unwrap_or(&"")
-                    .chars()
-                    .next()
-                    .unwrap_or('e'),
-                title: {
-                    let mut title = get_title
-                        .clone()
-                        .skip(1)
-                        .take(
-                            get_title
-                                .count()
-                        )
-                        .collect();
-
-                    Parser::pop_return(&mut title)
-                },
-                path: split_collect
-                    .get(1)
-                    .unwrap_or(&"")
-                    .to_string(),
-                host: split_collect
-                    .get(2)
-                    .unwrap_or(&"")
-                    .to_string(),
-                port: {
-                    let mut str = split_collect.get(3).unwrap_or(&"").to_string();
-                    let pop = Parser::pop_return(&mut str);
-
-                    pop.parse::<u16>().unwrap_or(0)
+                Item {
+                    code: Self::parse_code(&split_collect),
+                    title: Self::parse_title(&split_collect),
+                    path: Self::parse_path(&split_collect),
+                    host: Self::parse_host(&split_collect),
+                    port: Self::parse_port(&split_collect)
                 }
-            };
-
-            page.push(current_attr);
+            }).collect()
         }
-
-        Parser { page }
     }
 
     fn pop_return(to_parse: &mut String) -> String {
