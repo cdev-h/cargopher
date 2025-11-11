@@ -8,7 +8,7 @@ pub mod tui {
         Cursive,
     };
 
-    use crate::{gopher::gopher, tcp::tcp};
+    use crate::{gopher::parser::GopherParser, tcp::tcp};
 
     fn display_url_bar(siv: &mut Cursive) {
         siv.pop_layer(); // remove the current layer being displayed (either the welcome message or the gopher website)
@@ -18,7 +18,7 @@ pub mod tui {
     fn print_url_to_screen(siv: &mut Cursive, host: String) {
         match tcp::go_to("gopher://gopher.floodgap.com", 70, "/") {
             Ok(get_gopher) => {
-                let parser = gopher::Parser::new(&get_gopher);
+                let parser = GopherParser::new(&get_gopher);
 
                 let mut layout = LinearLayout::vertical();
 

@@ -2,7 +2,7 @@
 name = "cargopher"
 version = "0.1.0"
 authors = ["Giuseppe D'Amico <gdmc@outlook.it>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 cursive = "0.16"
